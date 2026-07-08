@@ -19,33 +19,33 @@ const rejectMessages = [
     title: "真的不来吗？",
     body: "全队都在等你落地，刚好缺一个最稳的队友。",
     status: "队友表示不信，决定再问你一次。",
-    button: "手滑了，再点一次"
+    button: "手滑了，再点一次",
   },
   {
     title: "再考虑 10 秒？",
-    body: "这把海岛资源点已经帮你标好了，落地就能开打。",
-    status: "房间还没关，正在继续邀请你。",
-    button: "还是不同意"
+    body: "这把海岛资源点都帮你标好了，落地就能开打。",
+    status: "房间还没关，邀请程序继续运行中。",
+    button: "还是不同意",
   },
   {
     title: "你不来谁补位？",
     body: "三个人已经语音集合，战术都定好了，就差你点头。",
-    status: "队长开启了第三轮劝说。",
-    button: "我再想想"
+    status: "队长已经开始第三轮劝说。",
+    button: "我再想想",
   },
   {
-    title: "最后问一遍？",
+    title: "最后再问一遍？",
     body: "其实不是最后一遍，只要你还没同意，我们就会继续问。",
-    status: "拒绝无效，邀请循环继续。",
-    button: "继续拒绝"
-  }
+    status: "拒绝无效，邀请继续循环。",
+    button: "继续拒绝",
+  },
 ];
 
 const launchTargets = [
   "tmgppeace://",
   "peacekeeperelite://",
   "gameassistant://startapp?pkgname=com.tencent.tmgp.pubgmhd",
-  "intent://#Intent;scheme=tmgppeace;package=com.tencent.tmgp.pubgmhd;end"
+  "intent://#Intent;scheme=tmgppeace;package=com.tencent.tmgp.pubgmhd;end",
 ];
 
 const userAgent = navigator.userAgent.toLowerCase();
@@ -77,7 +77,7 @@ function showOverlay(options) {
   overlayTag.textContent = options.tag;
   overlayTitle.textContent = options.title;
   overlayBody.textContent = options.body;
-  downloadBtn.href = options.downloadUrl;
+  downloadBtn.href = options.downloadUrl || "https://gp.qq.com";
   overlay.classList.remove("hidden");
 }
 
@@ -104,8 +104,8 @@ function openDeepLink(url) {
 function tryLaunchGame() {
   updateStatus("正在尝试打开和平精英，请稍候...");
   helperText.textContent = isWeChat
-    ? "检测到你正在微信内打开，若未跳转，请按提示改用系统浏览器继续。"
-    : "若未自动打开游戏，页面会继续给你下载或重试提示。";
+    ? "检测到你正在微信内打开，如果没有跳转，请按提示切到系统浏览器后再试。"
+    : "如果没有自动打开游戏，页面会继续给你下载或重试提示。";
 
   hideOverlay();
   clearTimeout(launchTimer);
@@ -118,12 +118,12 @@ function tryLaunchGame() {
 
   launchTimer = window.setTimeout(() => {
     showOverlay({
-      tag: isWeChat ? "微信内拦截提醒" : "打开失败提示",
-      title: isWeChat ? "微信可能拦截了游戏唤起" : "暂时没有成功拉起游戏",
+      tag: isWeChat ? "微信内拦截提示" : "打开失败提示",
+      title: isWeChat ? "微信可能拦截了应用唤起" : "暂时没有成功拉起游戏",
       body: isWeChat
-        ? "点击右上角菜单，选择“在浏览器打开”后再点一次“同意，上号”。如果还是不行，可以先前往和平精英官网或应用商店启动游戏。"
-        : "你可以再试一次；如果设备仍未跳转，说明当前浏览器不支持该唤起方式，请先手动打开和平精英。",
-      downloadUrl: "https://gp.qq.com"
+        ? "点击右上角菜单，选择“在浏览器打开”后，再点一次“同意，上号”。如果还不行，可以先前往和平精英官网。"
+        : "你可以再试一次；如果设备仍未跳转，说明当前浏览器不支持这种唤起方式，请先手动打开和平精英。",
+      downloadUrl: "https://gp.qq.com",
     });
     updateStatus("未检测到成功跳转，已为你准备后续操作提示。");
   }, 2200);
@@ -134,7 +134,7 @@ function tryLaunchGame() {
     }
 
     clearTimeout(launchTimer);
-    updateStatus("已检测到页面切到后台，应该正在打开和平精英。");
+    updateStatus("检测到页面切到后台，应该正在打开和平精英。");
   }, 1200);
 }
 
@@ -160,7 +160,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     clearTimeout(launchTimer);
     hideOverlay();
-    updateStatus("检测到页面已切到后台，正在等待你进入和平精英。");
+    updateStatus("检测到页面已经切到后台，正在等待你进入和平精英。");
     return;
   }
 
