@@ -6,6 +6,8 @@ const acceptBtn = document.getElementById("acceptBtn");
 const dialogCard = document.getElementById("dialogCard");
 const dialogTitle = document.getElementById("dialogTitle");
 const dialogBody = document.getElementById("dialogBody");
+const consentLock = document.getElementById("consentLock");
+const consentAcceptBtn = document.getElementById("consentAcceptBtn");
 const overlay = document.getElementById("overlay");
 const overlayTag = document.getElementById("overlayTag");
 const overlayTitle = document.getElementById("overlayTitle");
@@ -56,6 +58,7 @@ const isWeChat = /micromessenger/.test(userAgent);
 const isIOS = /iphone|ipad|ipod/.test(userAgent);
 let rejectIndex = 0;
 let launchTimer = null;
+let hasAccepted = false;
 
 function updateStatus(message) {
   statusText.textContent = message;
@@ -86,6 +89,23 @@ function showOverlay(options) {
 
 function hideOverlay() {
   overlay.classList.add("hidden");
+}
+
+function unlockConsent(startFlow = true) {
+  if (hasAccepted) {
+    if (startFlow) {
+      tryLaunchGame();
+    }
+    return;
+  }
+
+  hasAccepted = true;
+  consentLock.classList.add("hidden");
+  updateStatus("已确认同意，页面已解锁。");
+
+  if (startFlow) {
+    tryLaunchGame();
+  }
 }
 
 async function copyLaunchGuide() {
@@ -166,6 +186,10 @@ function tryLaunchGame() {
 }
 
 rejectBtn.addEventListener("click", () => {
+  if (!hasAccepted) {
+    return;
+  }
+
   const message = rejectMessages[rejectIndex % rejectMessages.length];
   rejectIndex += 1;
 
@@ -175,7 +199,14 @@ rejectBtn.addEventListener("click", () => {
   showDialog(message);
 });
 
-acceptBtn.addEventListener("click", tryLaunchGame);
+consentAcceptBtn.addEventListener("click", () => {
+  unlockConsent(true);
+});
+
+acceptBtn.addEventListener("click", () => {
+  unlockConsent(true);
+});
+
 retryBtn.addEventListener("click", tryLaunchGame);
 copyGuideBtn.addEventListener("click", copyLaunchGuide);
 
