@@ -11,6 +11,7 @@ const overlayTag = document.getElementById("overlayTag");
 const overlayTitle = document.getElementById("overlayTitle");
 const overlayBody = document.getElementById("overlayBody");
 const retryBtn = document.getElementById("retryBtn");
+const copyGuideBtn = document.getElementById("copyGuideBtn");
 const downloadBtn = document.getElementById("downloadBtn");
 const closeOverlayBtn = document.getElementById("closeOverlayBtn");
 
@@ -42,9 +43,11 @@ const rejectMessages = [
 ];
 
 const launchTargets = [
+  "com.tencent.tmgp.pubgmhd://",
   "tmgppeace://",
   "peacekeeperelite://",
   "gameassistant://startapp?pkgname=com.tencent.tmgp.pubgmhd",
+  "intent://launch#Intent;package=com.tencent.tmgp.pubgmhd;scheme=com.tencent.tmgp.pubgmhd;end",
   "intent://#Intent;scheme=tmgppeace;package=com.tencent.tmgp.pubgmhd;end",
 ];
 
@@ -85,6 +88,18 @@ function hideOverlay() {
   overlay.classList.add("hidden");
 }
 
+async function copyLaunchGuide() {
+  const text =
+    "如果页面没能自动打开和平精英，请先确认手机已安装游戏，再用系统浏览器打开此页面，或者手动打开和平精英。微信里通常会拦截应用唤起。";
+
+  try {
+    await navigator.clipboard.writeText(text);
+    updateStatus("已复制打开提示，你可以发给自己或直接按提示操作。");
+  } catch (error) {
+    updateStatus("当前浏览器不支持复制，请手动打开和平精英或改用系统浏览器重试。");
+  }
+}
+
 function openDeepLink(url) {
   if (url.startsWith("intent://")) {
     window.location.href = url;
@@ -104,8 +119,8 @@ function openDeepLink(url) {
 function tryLaunchGame() {
   updateStatus("正在尝试打开和平精英，请稍候...");
   helperText.textContent = isWeChat
-    ? "检测到你正在微信内打开，如果没有跳转，请按提示切到系统浏览器后再试。"
-    : "如果没有自动打开游戏，页面会继续给你下载或重试提示。";
+    ? "检测到你正在微信内打开。微信经常会拦截应用唤起，如果没有跳转，请按提示切到系统浏览器后再试。"
+    : "如果没有自动打开游戏，页面会继续给你重试和手动打开提示。";
 
   hideOverlay();
   clearTimeout(launchTimer);
@@ -122,10 +137,10 @@ function tryLaunchGame() {
       title: isWeChat ? "微信可能拦截了应用唤起" : "暂时没有成功拉起游戏",
       body: isWeChat
         ? "点击右上角菜单，选择“在浏览器打开”后，再点一次“同意，上号”。如果还不行，可以先前往和平精英官网。"
-        : "你可以再试一次；如果设备仍未跳转，说明当前浏览器不支持这种唤起方式，请先手动打开和平精英。",
+        : "你可以再试一次；如果设备仍未跳转，通常是浏览器不支持或系统拦截了唤起。请先确认已经安装和平精英，再尝试用系统浏览器打开，或者手动启动游戏。",
       downloadUrl: "https://gp.qq.com",
     });
-    updateStatus("未检测到成功跳转，已为你准备后续操作提示。");
+    updateStatus("未检测到成功跳转。这个页面只能尝试唤起，无法保证所有手机和浏览器都能直接打开游戏。");
   }, 2200);
 
   window.setTimeout(() => {
@@ -150,6 +165,7 @@ rejectBtn.addEventListener("click", () => {
 
 acceptBtn.addEventListener("click", tryLaunchGame);
 retryBtn.addEventListener("click", tryLaunchGame);
+copyGuideBtn.addEventListener("click", copyLaunchGuide);
 
 closeOverlayBtn.addEventListener("click", () => {
   hideOverlay();
