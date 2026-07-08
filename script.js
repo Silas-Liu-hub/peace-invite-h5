@@ -117,6 +117,18 @@ function openDeepLink(url) {
 }
 
 function tryLaunchGame() {
+  if (isIOS) {
+    showOverlay({
+      tag: "iPhone 打开说明",
+      title: "iPhone Safari 不能直接拉起和平精英",
+      body: "你现在看到的“网址无效”不是页面坏了，而是 iPhone Safari 不支持这种游戏唤起方式。请先手动打开和平精英，或者前往官网查看安装与启动方式。",
+      downloadUrl: "https://gp.qq.com",
+    });
+    updateStatus("当前是 iPhone Safari。这个页面不能直接打开和平精英，已为你显示手动打开说明。");
+    helperText.textContent = "iPhone 上建议手动打开和平精英；微信和 Safari 通常都不支持这种 H5 直接唤起。";
+    return;
+  }
+
   updateStatus("正在尝试打开和平精英，请稍候...");
   helperText.textContent = isWeChat
     ? "检测到你正在微信内打开。微信经常会拦截应用唤起，如果没有跳转，请按提示切到系统浏览器后再试。"
